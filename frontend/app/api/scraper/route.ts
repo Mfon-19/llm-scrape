@@ -10,7 +10,12 @@ export async function POST(request: Request) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prompt: params.prompt }),
+      body: JSON.stringify({
+        prompt: params.prompt,
+        ...(typeof params.maxPages === "number" && !Number.isNaN(params.maxPages)
+          ? { max_pages: params.maxPages }
+          : {}),
+      }),
     });
 
     if (!response.ok) {
@@ -24,8 +29,7 @@ export async function POST(request: Request) {
 
     const result = await response.json();
     return NextResponse.json(result);
-  } catch (error) {
-    console.error("API route error:", error);
+  } catch {
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
